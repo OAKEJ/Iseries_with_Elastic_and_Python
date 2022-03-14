@@ -1,0 +1,5 @@
+STRPGMEXP PGMLVL(*CURRENT) SIGNATURE('QSHPYRUNSR 1.0') 
+   EXPORT SYMBOL(qshpyrunsr_runPythonScript)           
+   EXPORT SYMBOL(qshpyrunsr_getFirstResult)            
+   EXPORT SYMBOL(qshpyrunsr_getManyResults)            
+ENDPGMEXP                                              
