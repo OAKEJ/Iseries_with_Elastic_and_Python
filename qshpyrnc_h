@@ -1,0 +1,52 @@
+       // Copy book for Qshpyrunc - https://github.com/richardschoen/QshOni
+
+       // Use Qshell to execute Python scripts
+       // https://github.com/richardschoen/QshOni#qshpyrun-command-parms
+
+       // Python Version
+       dcl-ds pythonVersionT qualified template;
+         two char(1) inz('2');
+         three char(1) inz('3');
+       end-ds;
+
+       // Constants
+       dcl-ds constants qualified;
+         add     char(4) inz('*ADD');
+         default char(8) inz('*DEFAULT');
+         no      char(3) inz('*NO');
+         none    char(5) inz('*NONE');
+         replace char(8) inz('*REPLACE');
+         same    char(5) inz('*SAME');
+         yes     char(4) inz('*YES');
+         pythonVersion likeds(pythonVersionT);
+       end-ds;
+
+       // The first 2 bytes hold the count of elements in argument
+       dcl-ds argStructT qualified template;
+         count   bindec(2) pos(1) inz(0);
+         element char(200) pos(3) dim(40);
+       end-ds;
+
+       // Default spool file to
+       dcl-c qshexeclog const('QSHEXECLOG');
+
+       dcl-pr qshpyrunc extpgm('QSHPYRUNC');
+         scriptDirectory   char(255) const;                  // IFS path to script folder
+         scriptFile        char(255) const;                  // name of the script to execute
+         args              likeds(argStructT)
+                           const options(*nopass);           // arguments list, up to 40
+         pythonVersion     char(5) const options(*nopass);   // one of '2' or '3'
+         pythonBinaryPath  char(255) const options(*nopass); // pass '*default' to use dtaara qshoni/pypath
+         setPackagePath    char(4) const options(*nopass);   // Set package path before running commands - *YES or *NO
+         displayStdOut     char(4) const options(*nopass);   // Display outfile contents - *YES or *NO
+         logStdOutToJobLog char(4) const options(*nopass);   // Log stdout to current job log - *YES or *NO
+         printStdOut       char(4) const options(*nopass);   // Print stdout to a spool file - *YES or *NO
+         deleteStdOut      char(4) const options(*nopass);   // Clean up IFS stdout after processing - *YES or *NO
+         ifsStdOut         char(4) const options(*nopass);   // Copy stdout to an IFS file - *YES or *NO
+         ifsFile           char(255) const options(*nopass); // IFS file for stdout.  Required if ifsStdOut = *YES
+         ifsOption         char(10) const options(*nopass);  // IFS file option. *REPLACE file or *ADD to file
+         ccsid             char(10) const options(*nopass);  // CCSID value.  37 or *SAME to use current job value
+         printSpoolFile    char(10) const options(*nopass);  // Name of spool file when printStdOut = *YES
+         printUserData     char(10) const options(*nopass);  // Name of spool file user data when printStdOut = *YES
+         printText         char(30) const options(*nopass);  // Name of spool file print text when printStdOut = *YES
+       end-pr; 
