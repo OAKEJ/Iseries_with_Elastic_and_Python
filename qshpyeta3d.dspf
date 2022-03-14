@@ -1,0 +1,123 @@
+     A*%%TS  SD  20220314  075016  LARSL       REL-V7R3M0  5770-WDS
+     A**************************************************************************
+     A* COPYRIGHT 2022 SWIFT TRANSPORTATION COMPANY, INCORPORATED              *
+     A* THIS SOFTWARE IS PROPRIETARY INFORMATION FOR SWIFT TRANSPORTATION      *
+     A* COMPANY, INC.                                                          *
+     A**************************************************************************
+     A* PROGRAM NAME: QSHPYETA3D                                               *
+     A* AUTHOR......: LYLE LARSEN                                              *
+     A* DATE........: 03/14/22                                                 *
+     A* PURPOSE.....: Show ETA Minutes between lat/lon pairs                   *
+     A* CCR#........:                                                          *
+     A*                                                                        *
+     A* -----------------------------------------------------------------------*
+     A*                                                                        *
+     A*  CUSTOM PROGRAM MODIFICATION INDEX                                     *
+     A*                                                                        *
+     A*   DATE  PGMR  PROJECT NUMBER ---------- DESCRIPTION -------------------*
+     A*  ------ ----- -------------- ------------------------------------------*
+     A* -----------------------------------------------------------------------*
+     A*%%EC
+     A                                      DSPSIZ(27 132 *DS4)
+     A                                      INDARA
+     A                                      CA03(03 'EXIT')
+     A                                      CA10(10 'RESTART')
+     A                                      CA12(12 'GO BACK')
+     A          R SEARCH
+     A*%%TS  SD  20220314  074920  LARSL       REL-V7R3M0  5770-WDS
+     A                                      OVERLAY
+     A            ERRMSG       100A  O 26 14COLOR(RED)
+     A                                      ALIAS(MESSAGE_FIELD)
+     A                                 27 14'F3=Exit'
+     A                                      COLOR(BLU)
+     A                                 27 24'F10=Restart'
+     A                                      COLOR(BLU)
+     A            FROMLAT       10A  B  5 67COLOR(WHT)
+     A                                      ALIAS(FROM_LAT)
+     A                                      CHANGE(20)
+     A            FROMLON       10A  B  6 67COLOR(WHT)
+     A                                      ALIAS(FROM_LON)
+     A                                      CHANGE(20)
+     A            TOLAT         10A  B  7 67COLOR(WHT)
+     A                                      ALIAS(TO_LAT)
+     A                                      CHANGE(20)
+     A            TOLON         10A  B  8 67COLOR(WHT)
+     A                                      ALIAS(TO_LON)
+     A                                      CHANGE(20)
+     A                                  5 46'Enter from Latitude:'
+     A                                  6 45'Enter from Longitude:'
+     A                                  7 48'Enter to Latitude:'
+     A                                  8 47'Enter to Longitude:'
+     A          R HEADER
+     A*%%TS  SD  20220311  115510  LARSL       REL-V7R3M0  5770-WDS
+     A            PGMNAM        10A  O  1  3COLOR(BLU)
+     A                                  2  3USER
+     A                                      COLOR(BLU)
+     A            CMNAME        30A  O  1 52COLOR(WHT)
+     A                                  1122DATE
+     A                                      EDTCDE(Y)
+     A                                      COLOR(BLU)
+     A                                  2122TIME
+     A                                      COLOR(BLU)
+     A                                  2 49'Average Minutes Between Coordinate-
+     A                                      s'
+     A                                      COLOR(PNK)
+     A          R SFL01                     SFL
+     A*%%TS  SD  20220314  071449  LARSL       REL-V7R3M0  5770-WDS
+     A            FLD001       100A  O  7 16ALIAS(DATA_ROW)
+     A          R SFC01                     SFLCTL(SFL01)
+     A*%%TS  SD  20220314  074750  LARSL       REL-V7R3M0  5770-WDS
+     A                                      SFLSIZ(0019)
+     A                                      SFLPAG(0018)
+     A                                      RTNCSRLOC(&CSRFMT &CSRFLD)
+     A                                      RTNCSRLOC(*MOUSE &ROW &COL)
+     A                                      OVERLAY
+     A                                      SFLCSRRRN(&CSRRRN)
+     A                                      SFLDSP
+     A  26                                  SFLDSPCTL
+     A N25                                  SFLCLR
+     A  25                                  SFLEND(*MORE)
+     A            RRN            4S 0H      SFLRCDNBR
+     A            CSRRRN         5S 0H
+     A            CSRFMT        10A  H
+     A            CSRFLD        10A  H
+     A            ROW            3S 0H
+     A            COL            3S 0H
+     A            PGMNAM        10A  O  1  3COLOR(BLU)
+     A                                  2  3USER
+     A                                      COLOR(BLU)
+     A            CMNAME        30A  O  1 52COLOR(WHT)
+     A                                  1122DATE
+     A                                      EDTCDE(Y)
+     A                                      COLOR(BLU)
+     A                                  2122TIME
+     A                                      COLOR(BLU)
+     A                                  6 16'                                  -
+     A                                                   Data                  -
+     A                                                                     '
+     A                                      COLOR(TRQ)
+     A                                      DSPATR(UL)
+     A                                  2 49'Average Minutes Between Coordinate-
+     A                                      s'
+     A                                      COLOR(PNK)
+     A                                  4 12'From latitude:'
+     A                                      COLOR(BLU)
+     A            FLD001        10   O  4 27ALIAS(FROM_LAT)
+     A                                  4 40'From longitude:'
+     A                                      COLOR(BLU)
+     A            FLD002        10A  O  4 56ALIAS(FROM_LON)
+     A                                  4 69'To latitude:'
+     A                                      COLOR(YLW)
+     A            FLD003        10A  O  4 82ALIAS(TO_LAT)
+     A                                  4 95'To longitude:'
+     A                                      COLOR(YLW)
+     A            FLD004        10A  O  4109ALIAS(TO_LON)
+     A          R FOOTER
+     A*%%TS  SD  20220314  073720  LARSL       REL-V7R3M0  5770-WDS
+     A                                      OVERLAY
+     A            ERRMSG       100A  O 26 14COLOR(RED)
+     A                                      ALIAS(MESSAGE_FIELD)
+     A                                 27 14'F3=Exit'
+     A                                      COLOR(BLU)
+     A                                 27 24'F10=Restart'
+     A                                      COLOR(BLU) 
