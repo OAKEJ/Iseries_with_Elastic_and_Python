@@ -1,0 +1,65 @@
+       // Copy book for service program Qshpyrunsr
+
+       dcl-c maxQshResultCount 9999;
+
+       //-----------------------------------------------------------------------
+       // Procedure.: qshpyrunsr_getScriptResult
+       // Purpose...: Retrives the contents of Qtemp/Stdoutqsh, which is
+       //               populated after calling Qshpyrunc
+       //             Each row of Stdoutqsh is placed in outResultList along
+       //               with a total row count, up to a max of 9999.
+       // Returns...: Nothing
+       //-----------------------------------------------------------------------
+       dcl-pr qshpyrunsr_getScriptResult;
+         outResultList  char(1000) dim(maxQshResultCount);
+         outResultCount int(10);
+       end-pr;
+
+       // ---------------------------------------------------------------------
+       // Procedure : qshpyrunsr_runPythonScript
+       // Purpose...: Runs a Python script on the IFS.
+       // Returns...: Nothing
+       // ---------------------------------------------------------------------
+       dcl-pr qshpyrunsr_runPythonScript;
+         inScriptDirectory   char(255) const;                  // IFS path to script folder
+         inScriptFile        char(255) const;                  // name of the script to execute
+         inArgs              likeds(argStructT)                // arguments list, up to 40
+                             const options(*nopass);
+         inPythonVersion     char(5)   const options(*nopass); // one of '2' or '3'
+         inPythonBinaryPath  char(255) const options(*nopass); // pass '*default' to use dtaara qshoni/pypath
+         inSetPackagePath    char(4)   const options(*nopass); // Set package path before running cmd - *YES or *NO
+         inDisplayStdOut     char(4)   const options(*nopass); // Display outfile contents - *YES or *NO
+         inLogStdOutToJobLog char(4)   const options(*nopass); // Log stdout to current job log - *YES or *NO
+         inPrintStdOut       char(4)   const options(*nopass); // Print stdout to a spool file - *YES or *NO
+         inDeleteStdOut      char(4)   const options(*nopass); // Clean up IFS stdout after processing - *YES or *NO
+         inIfsStdOut         char(4)   const options(*nopass); // Copy stdout to an IFS file - *YES or *NO
+         inIfsFile           char(255) const options(*nopass); // IFS file for stdout.  Required if ifsStdOut = *YES
+         inIfsOption         char(10)  const options(*nopass); // IFS file option. *REPLACE file or *ADD to file
+         inCcsid             char(10)  const options(*nopass); // CCSID value.  37 or *SAME to use current job value
+         inPrintSpoolFile    char(10)  const options(*nopass); // Name of spool file when printStdOut = *YES
+         inPrintUserData     char(10)  const options(*nopass); // Name of spool file user data when printStdOut = *YES
+         inPrintText         char(30)  const options(*nopass); // Name of spool file print text when printStdOut = *YE
+       end-pr;
+
+       // ---------------------------------------------------------------------
+       // Procedure : qshpyrunsr_getManyResults
+       // Purpose...: Retrieves the contents of Qtemp/Stdoutqsh, which is
+       //             populated with results after calling Qshpyrunc.
+       //             Each row of Stdoutqsh is placed in outResultList along
+       //             with a total row count.
+       // Returns...: Nothing
+       // ---------------------------------------------------------------------
+       dcl-pr qshpyrunsr_getManyResults;
+         outResultList  char(1000) dim(maxQshResultCount);
+         outResultCount int(10);
+       end-pr;
+
+       // ---------------------------------------------------------------------
+       // Procedure : qshpyrunsr_getFirstResult
+       // Purpose...: Retrieves the first row of Qtemp/Stdoutqsh, which is
+       //             populated with results after calling Qshpyrunc.
+       // Returns...: Data row as a 1000A string
+       // ---------------------------------------------------------------------
+       dcl-pr qshpyrunsr_getFirstResult;
+         outResult char(1000);
+       end-pr; 
