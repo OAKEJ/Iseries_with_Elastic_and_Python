@@ -1,0 +1,307 @@
+      **************************************************************************
+      * COPYRIGHT 2022 SWIFT TRANSPORTATION COMPANY, INCORPORATED              *
+      * This software is proprietary information for Swift Transportation      *
+      * Company, Inc.                                                          *
+      **************************************************************************
+      * Program Name: qshpyeta3r                                               *
+      * Author......: John Oakes                                               *
+      * Date........: 03/11/22                                                 *
+      * Purpose.....: Test calling a python script from RPG                    *
+      * CCR#........:                                                          *
+      **************************************************************************
+      *           M O D I F I C A T I O N   H I S T O R Y
+      * Initials   Date     UserID      Description
+      *   XXX    mm/dd/yy   xxxxxxxxxx  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+      **************************************************************************
+      **************************************************************************
+       ctl-opt copyright('COPYRIGHT 2022 SWIFT TRANSPORTATION INCORPORATED')
+               debug indent('| ')
+               option(*srcstmt : *nodebugio)
+               datfmt(*iso)
+               timfmt(*iso)
+               bnddir('SWIFT')
+               dftactgrp(*no);
+
+       exec sql set option naming = *sys, datfmt = *iso, timfmt = *iso,
+         closqlcsr = *endmod, commit = *none;
+
+       // program prototype
+       dcl-pi qshpyeta3r;
+       end-pi;
+
+       // file definitions
+       dcl-f qshpyeta3d workstn infds(commandInd) indds(displayInd) alias
+                        sfile(sfl01 : rrn);
+
+       // data areas
+       dcl-ds sds ext psds end-ds;
+       dcl-ds compan ext dtaara('COMPAN') end-ds;
+       dcl-ds lcinfo ext dtaara('LCINFO') end-ds;
+
+       dcl-ds commandInd;
+         commandKey char(1) pos(369);
+       end-ds;
+
+       // command key constants
+       dcl-c f1Mouseclick     const(x'31');
+       dcl-c f2               const(x'32');
+       dcl-c f3Exit           const(x'33');
+       dcl-c f4               const(x'34');
+       dcl-c f5               const(x'35');
+       dcl-c f6               const(x'36');
+       dcl-c f7               const(x'37');
+       dcl-c f8               const(x'38');
+       dcl-c f9               const(x'39');
+       dcl-c f10Restart       const(x'3A');
+       dcl-c f11              const(x'3B');
+       dcl-c f12GoBack        const(x'3C');
+       dcl-c f13              const(x'B1');
+       dcl-c f14              const(x'B2');
+       dcl-c f15              const(x'B3');
+       dcl-c f16              const(x'B4');
+       dcl-c f17              const(x'B5');
+       dcl-c f18              const(x'B6');
+       dcl-c f19              const(x'B7');
+       dcl-c f20              const(x'B8');
+       dcl-c f21              const(x'B9');
+       dcl-c f22              const(x'BA');
+       dcl-c f23              const(x'BB');
+       dcl-c f24              const(x'BC');
+       dcl-c clear            const(x'BD');
+       dcl-c enter            const(x'F1');
+
+       // indicator data structure
+       dcl-ds displayind;
+         filtersChanged ind pos(20);
+         displaySubfile ind pos(25);
+         displayControl ind pos(26) inz(*on);
+       end-ds;
+
+       // copy books
+       /include iesr7cstms/qrpglecpy,utilstri_h
+       /include larsl/qrpglecpy,qshpyrnc_h
+       /include larsl/qrpglecpy,qshpyrns_h
+
+       // main routine
+       mainroutine();
+       *inlr = *on;
+
+       //-----------------------------------------------------------------------
+       // Procedure.: mainRoutine
+       // Purpose...: Main routine to control the flow of the program.
+       // Returns...: Nothing.
+       //-----------------------------------------------------------------------
+       dcl-proc mainRoutine;
+
+         initialize();
+
+         dou commandKey = f3Exit;
+
+           write header;
+           exfmt search;
+
+           clear message_field;
+
+           if commandkey = f3Exit;
+             iter;
+           elseif commandKey = f10Restart;
+             restart();
+           elseif filtersChanged = *on or commandKey = enter;
+             if validateSearch() = *off;
+               getEstimatedMinutes();
+             endif;
+           endif;
+
+         enddo;
+
+       end-proc;
+
+       //-----------------------------------------------------------------------
+       // Procedure.: initialize()
+       // Purpose...: Perform any initialization.
+       // Returns...: Nothing.
+       //-----------------------------------------------------------------------
+       dcl-proc initialize;
+
+         in compan;
+         utilString_centerText(cmname: %len(cmname));
+
+         from_lat = '33.7';
+         from_lon = '-84.4';
+         to_lat = '34.5';
+         to_lon = '-93.1';
+
+       end-proc;
+
+       //-----------------------------------------------------------------------
+       // Procedure.: restart
+       // Purpose...: Restart the search screen.
+       // Returns...: Nothing.
+       //-----------------------------------------------------------------------
+       dcl-proc restart;
+
+         clear from_lat;
+         clear from_lon;
+         clear to_lat;
+         clear to_lon;
+         clear message_field;
+
+       end-proc;
+
+       //-----------------------------------------------------------------------
+       // Procedure.: validateSearch
+       // Purpose...: Validate search inputs.
+       // Returns...: *on for error and *off otherwise
+       //-----------------------------------------------------------------------
+       dcl-proc validateSearch;
+         dcl-pi *n ind;
+         end-pi;
+
+         if from_lat = *blanks;
+           message_field = 'Please enter the from Latitude';
+           return *on;
+         endif;
+
+         if from_lon = *blanks;
+           message_field = 'Please enter the from Longitude' ;
+           return *on;
+         endif;
+
+         if to_lat = *blanks;
+           message_field = 'Please enter the to Latitude';
+           return *on;
+         endif;
+
+         if to_lon = *blanks;
+           message_field = 'Please enter the to Longitude' ;
+           return *on;
+         endif;
+
+         return *off;
+
+       end-proc;
+
+       //-----------------------------------------------------------------------
+       // Procedure.: getEstimatedMinutes
+       // Purpose...: Get the estimated minutes between zip codes
+       // Returns...: Nothing
+       //-----------------------------------------------------------------------
+       dcl-proc getEstimatedMinutes;
+
+         getMilesBetweenZips(from_lat: from_lon:
+                             to_lat: to_lon);
+
+       end-proc;
+
+       // ---------------------------------------------------------------------
+       // Procedure : getMilesBetweenZips
+       // Purpose...: Get the average minutes between two zip codes.
+       // Returns...: Miles between zip codes
+       // ---------------------------------------------------------------------
+       dcl-proc getMilesBetweenZips;
+         dcl-pi *n;
+           latA char(10) const;
+           lonA char(10) const;
+           latB char(10) const;
+           lonB char(10) const;
+         end-pi;
+
+         dcl-c scriptDirectory const('/home/LARSL');
+         dcl-c scriptFile const('elastic_eta3.py');
+
+         dcl-ds argumentDs likeds(argStructT);
+         dcl-s result char(1000) dim(maxQshResultCount);
+         dcl-s resultCount int(10);
+
+         argumentDs.element(1) = latA;
+         argumentDs.element(2) = lonA;
+         argumentDs.element(3) = latB;
+         argumentDs.element(4) = lonB;
+         argumentDs.count = 4;
+
+         qshpyrunsr_runPythonScript(
+           scriptDirectory :
+           scriptFile :
+           argumentDs
+         );
+
+         qshpyrunsr_getManyResults(result : resultCount);
+
+         showSubfile(result : resultCount);
+
+       end-proc;
+
+       //-----------------------------------------------------------------------
+       // Procedure.: clearSubfile
+       // Purpose...: Clear the subfile and prepare for data
+       // Returns...: Nothing.
+       //-----------------------------------------------------------------------
+       dcl-proc clearSubfile;
+
+         displaySubfile = *off;
+         write sfc01;
+         rrn = 0;
+
+       end-proc;
+
+       //-----------------------------------------------------------------------
+       // Procedure.: loadSubfile
+       // Purpose...: Load data into the subfile
+       // Returns...: Nothing
+       //-----------------------------------------------------------------------
+       dcl-proc loadSubfile;
+         dcl-pi *n;
+           result char(1000) dim(maxQshResultCount) const;
+           resultCount int(10) const;
+         end-pi;
+
+         dcl-s i int(10);
+
+         clearSubfile();
+
+         for i = 1 to resultCount;
+           data_row = result(i);
+           rrn += 1;
+           write sfl01;
+         endfor;
+
+         if rrn > 0;
+           displaySubfile = *on;
+           rrn = 1;
+         else;
+           message_field = 'No records to display';
+         endif;
+
+       end-proc;
+
+       //-----------------------------------------------------------------------
+       // Procedure.: showSubfile
+       // Purpose...: Show the subfile
+       // Returns...: Nothing
+       //-----------------------------------------------------------------------
+       dcl-proc showSubfile;
+         dcl-pi *n;
+           result char(1000) dim(maxQshResultCount) const;
+           resultCount int(10) const;
+         end-pi;
+
+         loadSubfile(result : resultCount);
+
+         // Display the current search date
+         //search_invoice_date = %char(%date(invoice_date : *mdy) : *mdy/);
+
+         dow 1 = 1;
+
+           write footer;
+           exfmt sfc01;
+
+           if commandkey = f3Exit;
+             return;
+           elseif commandKey = f10Restart;
+             restart();
+             return;
+           endif;
+
+         enddo;
+
+       end-proc;
